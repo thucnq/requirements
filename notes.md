@@ -310,7 +310,41 @@ Các yếu tố quyết định việc lựa chọn database schema phù hợp:
 
 Dưới đây là danh sách các database schema thường được sử dụng với OSM data.
 
-![](https://previews.dropbox.com/p/thumb/AAowBcFsQ15hZ8JjqcAAI_W_TLqtcLQKNxK7Ao-FXgwjeJEBPgm2cOCMbR6k0ET4XP4vVp3BVNLjGb8DRUwq7iunQpFEUkBMcxj-mfuv6FvLc3QF0eh7JkmSxHrYxIlAcGguFndzZIVWOzYx54l0GudBr90ZZFZX8NPJm0k0cSNUVD9clyyFZmFl7NJJduA3TXGU813DQp-8tf9c1gXs5USI2g0NC9EGwXmu5HL-Run4KE9YceOqvlcKwT3mc-n6xPmcQKShKnA5fjBO_1S7_sSc7eKflA8IM061kT-ZxZCMHgDcwQNn_N1CBPETywa9cee8-DpUVhDA0PtaHn3dQGOi/p.png?fv_content=true&size_mode=5)
+![](./osm-db-schemas.png)
+
+Đối với beMaps, chúng ta sẽ sử dụng 2 database schema chính sau:
+- **osm2pgsql schema**: database schema này được sử dụng để lưu trữ nodes, ways, relations.
+- **Nominatim schema**: dùng để lưu trữ dữ liệu phục vụ cho việc searching.
+
+
+**osm2pgsql schema**
+![](./osm2pgsql-schema.jpg)
+
+osm2pgsql sử dụng schema này để lưu trữ dữ liệu sau khi convert dữ liệu OSM gốc sang PostgreSQL. Các bảng chính được sử dụng để lưu từng loại dữ liệu tương ứng với OSM data model.
+- osm_point
+- osm_nodes
+- osm_line
+- osm_polygon
+- osm_rels (relations)
+- osm_roads
+- osm_ways
+
+**Nominatim schema**
+Nominatim schema khá phức tạp với việc chưa rất nhiều **partitioned tables** được dùng để lưu các dữ liệu phục vụ cho việc searching.
+Cấu trúc database của Nominatim có thể tham khảo tại đây: https://github.com/openstreetmap/Nominatim/tree/master/sql
+
+Đối với beMaps, việc sử dụng PostgreSQL hoàn toàn cho việc search sẽ không hiệu quả và thường không mở rộng (scaling) được. Một phương pháp để giải quyết vấn đề này là sử dụng Elasticsearch để cải thiện tốc độ và độ chính xác của quá trình searching.
+
+Elastic hỗ trợ tốt trong việc xử lý các loại dữ liệu liên quan đến bản đồ
+https://www.elastic.co/webinars/geospatial-applications-with-elasticsearch
+
+![](./osm-elasticsearch.png)
+
+- Dữ liệu từ OSM, sẽ được lọc, chuẩn hóa và index vào Elasticsearch
+- Elasticsearch có thể được scale sử dụng các kĩ thuật như **sharding** và **clustering**
+- beMaps backend có thể thực hiện các **geographic queries** sử dụng các Elasticsearch index.
+
+### OSM Frontend
 
 
 
