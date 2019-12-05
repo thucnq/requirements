@@ -637,7 +637,7 @@ sudo /etc/init.d/renderd restart
 OSM sử dụng Mapnik để render layer chuẩn.
 Mapnik thực hiện việc render thông quá **mod_tile**. Mapnik đồng thời quản lý việc caching và queueing các rendering requests. Khi một tile được đánh giá là **dirty** (outdated) dựa vào timestamp của tile đó, Mapnik sẽ thực hiện việc render lại tile đó.
 
-
+## Nominatim 
 
 
 
