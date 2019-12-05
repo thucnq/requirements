@@ -204,6 +204,82 @@ OSM sử dụng hệ cở sở dữ liệu quan hệ PostgreSQL để lưu trữ
 
 Reference: https://postgis.net
 
+> beMaps sẽ sử dụng PostgreSQL và PostGIS extension để lưu trữ và truy xuất dữ liệu bản đồ từ OSM
+
+#### osm2pgsql
+OSM community phát triển một công cụ để chuyển đổi dữ liệu raw từ OSM sang dạng dữ liệu được lưu trong các bảng của PostgreSQL - **osm2pgsql**. Reference: https://github.com/openstreetmap/osm2pgsql
+
+Các cài đặt phiên bản mới nhất của osm2pgsql
+```
+mkdir ~/src
+cd ~/src
+git clone git://github.com/openstreetmap/osm2pgsql.git
+cd osm2pgsql
+
+sudo apt install make cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev
+
+mkdir build && cd build
+cmake ..
+
+make
+sudo make install
+```
+
+Sau khi cài đặt chúng ta có thể acccess command - **osm2pgsql*
+
+Trước khi convert dữ liệu chúng ta cần tải dữ liệu raw từ OSM, ví dụ:
+```
+wget https://download.geofabrik.de/asia/vietnam-latest.osm.pbf
+```
+Để convert và insert dữ liệu OSM vào database, chúng ta sử dụng lệnh sau:
+```
+osm2pgsql -d gis --create --slim  -G --hstore --tag-transform-script ~/src/openstreetmap-carto/openstreetmap-carto.lua -C 2500 --number-processes 1 -S ~/src/openstreetmap-carto/openstreetmap-carto.style ~/vietnam-latest.osm.pbf
+```
+Quá trình này tiêu tốn khá nhiều tài nguyên hệ thống như CPU, RAM và Disk I/O. Thông thường để import toàn bộ dữ liệu Việt Nam chúng ta cần vài chục phút đến 1 hoặc 2 tiếng, phụ thuộc vào cấu hình máy.
+
+Giải thích command phía trên:
+```
+-d gis
+```
+Ở đây chúng ta sẽ định nghĩa tên database mà osm2pgsql sẽ dùng để lưu dữ liệu. Trong ví dụ trên tên database là **gis**
+
+```
+--create
+```
+Load dữ liệu vào một database trống thay vì một database đã tồn tại dữ liệu
+
+```
+--slim
+```
+Database table layout được osm2pgsql sử dụng, ở đấy "slim" layout phù hợp cho quá trình rendering sau này.
+
+```
+--hstore
+```
+Cho phép các tags không tương ứng với bất kì cột nào trong database được sử dụng cho việc rendering
+
+```
+--tag-transform-script
+```
+Script được sử dụng để transform các tags trước khi apply các styles khác nhau cho tags.
+
+```
+-C 2500
+```
+Lượng RAM sẽ được sử dụng cho quá trình import (theo MB). Trong ví dụ trên ta dùng 2.5GB
+
+```
+--number-process 1
+```
+Số core CPU được sử dụng cho quá trình import
+
+Và cuối cùng là file dữ liệu gốc từ OSM - định dạng là .pbf
+
+
+
+
+
+
 
 
 
