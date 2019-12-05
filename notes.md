@@ -366,8 +366,13 @@ Component này được sử dụng để hiện thị map, thực hiện việc
 
 **Slippy Map** sử dụng AJAX để load dữ liệu từ server. Dữ liệu map dược tải xuống từ OSM server ở background sử dụng Javascript (không cần phải tải lại toàn bộ trang). Quá trình này giúp cho việc thực hiện các hành động như zooming và panning trên map trở nên mượt mà hơn (giúp cải thiện trải nghiệm người dùng).
 
+Nhìn chung, **displaying map** là quá trình tạo các tiles và serving các map tiles đó sử dụng **tile server**.
 
+Có khá nhiều công cụ open-source có thể được sử dụng để xây dựng các hệ thống map động (interactive map). Hai công cụ khá phổ biến có thể áp dụng vào beMaps bao gồm:
+- **OpenLayers** (https://openlayers.org): được sử dụng để hiển thị các map tiles, các dữ liệu khác như vector data, map markers được lấy từ OpenStreetMap hoặc các nguồn dữ liệu khác như (Bing, MapBox, Satemen,...). OpenLayers có thể được sử dụng để quản lý các layers vào tạo các tương tác (interactions) trên các layer đó. OpenLayers được viết bằng JavaScript, do vậy công cụ này khá phù hợp cho môi trường web.
+- **Leaflet** (https://leafletjs.com): Tương tự như OpenLayers, Leaflet là một thư viên JavaScript dùng để tạo các map động. Leaflet có thể được sử dụng để render các map tiles, tạo map markers, tạo các hành động như zooming, panning, scaling,...
 
+##### Routing
 
 
 
