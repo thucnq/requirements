@@ -345,6 +345,26 @@ https://www.elastic.co/webinars/geospatial-applications-with-elasticsearch
 - beMaps backend có thể thực hiện các **geographic queries** sử dụng các Elasticsearch index.
 
 ### OSM Frontend
+OSM frontend được viết sử dụng các ngôn ngữ chính là Ruby (sử dụng Ruby on Rails framework), JavaScript và Perl
+
+Các thành phần chính của OSM frontend bao gồm:
+- The front page map
+- Data browser
+- User diaries
+- User messaging
+- Friends
+- Permissions and roles
+
+Chúng ta chỉ cần quan tâm đến 2 thành phần quan trọng là **front page map** và **data browser**. Các thành phần khác không thực sự phù hợp trong ngữ cảnh của beMaps
+
+#### The front page map
+
+Component này được sử dụng để hiện thị map, thực hiện việc routing và truy xuất các dữ liệu liên quan đến các thành của map như roads, POIs,...
+
+##### Displaying map
+Đây là quá trình render các tiles lên các môi trường như web browser. OSM sử dụng một kĩ thuật với tên gọi là **Slippy Map**.
+
+**Slippy Map** sử dụng AJAX để load dữ liệu từ server. Dữ liệu map dược tải xuống từ OSM server ở background sử dụng Javascript (không cần phải tải lại toàn bộ trang). Quá trình này giúp cho việc thực hiện các hành động như zooming và panning trên map trở nên mượt mà hơn (giúp cải thiện trải nghiệm người dùng).
 
 
 
