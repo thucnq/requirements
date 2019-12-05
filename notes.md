@@ -188,6 +188,15 @@ Ví dụ về tags:
 
 ![OSM System Components](https://wiki.openstreetmap.org/w/images/2/27/OSM_Components.svg)
 
+Cấu trúc hệ thống của OSM là khá phức tạp. Tuy nhiên chúng ta sẽ chỉ tập trung vào một số thành phần quan trọng của hệ thống này. C
+
+
+
+
+
+
+
+
 
 
 
