@@ -275,6 +275,15 @@ Số core CPU được sử dụng cho quá trình import
 
 Và cuối cùng là file dữ liệu gốc từ OSM - định dạng là .pbf
 
+#### PostgreSQL Tuning
+Dữ liệu OSM sau khi được convert và lưu trữ trong PostgreSQL cần được đánh index chi tiết nhằm tăng performance khi thực hiện các công việc như searching. OSM cung cấp một số hướng dẫn nhằm tối ưu hiệu năng của PostgreSQL - https://wiki.openstreetmap.org/wiki/PostgreSQL#Tune_the_database
+
+Tuy nhiên hiện tại be sử dụng Cloud Platform cho việc cấu hình database nên việc tuning PostgreSQL sẽ có những khác biệt. Việc tuning PostgreSQL không nằm trong ph
+
+#### OSM Database Schema
+
+![OSM Database](https://wiki.openstreetmap.org/w/images/5/58/OSM_DB_Schema_2016-12-13.svg)
+
 
 
 
