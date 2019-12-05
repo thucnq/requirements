@@ -284,9 +284,33 @@ Tuy nhiên hiện tại be sử dụng Cloud Platform cho việc cấu hình dat
 
 ![OSM Database](https://wiki.openstreetmap.org/w/images/5/58/OSM_DB_Schema_2016-12-13.svg)
 
+Cơ sở dữ liệu hiện tại là khá phức tạp và phục vụ cho khá nhiều chức năng như: user authentication, changesets, user messaging, user diaries,..
 
+Chúng ta chỉ quan tâm các các bảng dùng để lưu trữ dữ liệu map hiện tại, cụ thể là các bảng sau:
+- changesets
+- changeset_tags
+- current_ways
+- current_way_tags
+- current_way_nodes
+- current_nodes
+- current_node_tags
+- current_relations
+- current_relation_tags
 
+> Cấu trúc dữ liệu hiện tại của OSM sẽ được sử dụng như một tài liệu tham khảo khi thiết kế database cho beMaps
 
+OSM sử dụng nhiều cơ sở dữ liệu khác nhau cho các tác vụ khác nhau đối với dữ liệu map. Một số ví dụ như:
+- Database schema cung cấp bởi **osm2pgsql**: được sử dụng chủ yếu cho việc lưu trữ dữ liệu về node, ways, relations. Dữ liệu đó sau đó sẽ được sử dụng để render các tiles.
+- Database schema cung cấp bởi **Nominatim**: được sử dụng chủ yếu cho việc searching map data.
+
+Các yếu tố quyết định việc lựa chọn database schema phù hợp:
+- Updatable: ứng dụng cần sử dụng các dữ liệu bản đồ mới nhất từ OSM. Dữ liệu sẽ được cập nhật sử dụng **osmChange** (https://wiki.openstreetmap.org/wiki/OsmChange) và không cần import toàn bộ dữ liệu lại từ đầu.
+- Geometries: schema cần hỗ trợ việc lưu trữ các dữ liệu dạng geometry hay không?
+- Lossless: toàn bộ thông tin từ OSM sẽ được lưu trữ bao gồm: version, thông tin user, changeset và tags. Những thông tin này là cần thiết cho quá trình chỉnh sửa và update dữ liệu bản đồ. Tuy nhiên trong các ứng dụng thực tế, chúng ta chỉ cần dữ liệu ở dạng **lossy**, dữ liệu bản đồ chỉ cần đủ để phục vụ cho việc routing, geocoding,..
+
+Dưới đây là danh sách các database schema thường được sử dụng với OSM data.
+
+![](https://previews.dropbox.com/p/thumb/AAowBcFsQ15hZ8JjqcAAI_W_TLqtcLQKNxK7Ao-FXgwjeJEBPgm2cOCMbR6k0ET4XP4vVp3BVNLjGb8DRUwq7iunQpFEUkBMcxj-mfuv6FvLc3QF0eh7JkmSxHrYxIlAcGguFndzZIVWOzYx54l0GudBr90ZZFZX8NPJm0k0cSNUVD9clyyFZmFl7NJJduA3TXGU813DQp-8tf9c1gXs5USI2g0NC9EGwXmu5HL-Run4KE9YceOqvlcKwT3mc-n6xPmcQKShKnA5fjBO_1S7_sSc7eKflA8IM061kT-ZxZCMHgDcwQNn_N1CBPETywa9cee8-DpUVhDA0PtaHn3dQGOi/p.png?fv_content=true&size_mode=5)
 
 
 
