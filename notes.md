@@ -542,6 +542,26 @@ Dữ liệu trả về sẽ tương tự như sau
 
 > Đối với beMaps, chúng ta sẽ tập trung chủ yếu vào OSRM. Trong những phần sau, chúng ta sẽ tìm hiểu rõ hơn về các thuật toán OSRM sử dung, các APIs cho backend mà OSRM cung cấp, cũng như cách để triển khai OSRM trên môi trường th
 
+##### Querying Tool
+Chức năng này cho phép người dùng click vào một điểm trên map và dữ liệu liên quan đến điểm đó - POIs sẽ được trả về.
+
+OSM sử dụng Overpass API (http://overpass-api.de) để truy xuất các điểm POIs trên bản đồ.
+
+> Đối với beMaps, chúng ta sẽ không sử dụng API được cung cấp bởi Overpass. Chúng ta cần tập hợp dữ liệu POIs từ các nguồn khác nhau (đặc biệt là Goong) và xây dựng thế thống các APIs để thực hiện truy xuất nguồn dữ liệu đó. Overpass khá tốt, tuy nhiên nguồn dữ liệu của Overpass là hạn chế và không được cập nhật thường xuyên.
+
+
+##### Data layer overview
+Trong phần sau chúng ta sẽ làm rõ hơn về map layers trong OpenStreetMap. OpenStreetMap sử dụng một số layer cơ bản sau:
+- Standard layer: layer mặc định, cung cấp bởi OSM
+- Cycle Map: cung cấp bởi Thunderforest - https://www.thunderforest.com
+- Transport Map:  cung cấp bởi Thunderforest - https://www.thunderforest.com
+- Humanitarian: cung cấp bởi Humanitarian OpenStreetMap team.
+
+Mỗi map layer cung cấp một hiệu ứng hình ảnh khác nhau. Các map layer có thể được sử dụng cùng nhau để cung cấp nhiều dữ liệu hơn cho map hiện tại.
+
+
+
+
 
 
 
