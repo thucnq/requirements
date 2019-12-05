@@ -198,12 +198,11 @@ Cấu trúc hệ thống của OSM là khá phức tạp. Tuy nhiên chúng ta s
 - Frontend: Là thành phần dùng để tạo lên giao diện người dùng của OpenStreetMap.
 
 ### OSM Database
+OSM sử dụng hệ cở sở dữ liệu quan hệ PostgreSQL để lưu trữ các dữ liệu bản đồ. Lý do dùng PostgreSQL:
+- PostgreSQL hỗ trợ tốt cho việc lưu trữ các dữ liệu dạng geometry (geometric data types).
+- PostGIS là một extension cho PostgreSQL được phát triển để tăng khả năng xử lứ các dữ liệu liên quan đến bản đồ như cung cấp các dạng dữ liệu mới cũng như cho phép truy xuất dữ liệu bản đồ trực tiếp qua các database queries.
 
-
-
-
-
-
+Reference: https://postgis.net
 
 
 
