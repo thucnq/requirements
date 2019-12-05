@@ -65,13 +65,124 @@ API documentation: https://wiki.openstreetmap.org/wiki/API_v0.6
 > Đối với beMaps, chúng ta không cần quan tâm quá nhiều đến các APIs trên. APIs thường được sử dụng chính bởi các contributors. Ngoài ra các APIs trên được hosted và quản lý bởi OSM, nên việc sử dụng chúng thường có giới hạn. Các APIs này có thể được sử dụng để tìm hiểu về cấu trúc dữ liệu bên dưới của OSM.
 
 ## OSM Data Model
+Dữ liệu bản đồ OSM được cấu thành từ các features, mỗi feature sẽ được cấu thành từ các **geometries** và các **attributes** (hay còn gọi là metadata).
 
+**Geometries** trong OSM bao gồm: **node**, **way** và **relation**
 
+**Atributes** còn được gọi là **tags**
 
+### Geometries
+#### Node
+**Node** được dùng để biểu diễn các điểm trên bản đồ thông thường là cách **POIs**. Một node có thể chứa thêm các tags dùng để cung cấp các thông tin liên quan đến node đó. Bên dưới là một số ví dụ về node trong OSM:
 
+Một node cơ bản, không có thông tin metadata (tags). Một node sẽ chứa các thông tin cơ bản như: latitude, longitude, visible, và timestamp (thời gian được update)
+```
+<node id="1008752931" visible="true" version="1" changeset="6472947" timestamp="2010-11-27T20:20:01Z" user="richlv" uid="47892" lat="21.0179339" lon="105.8432779"/>
+```
+Node có thể chứa thêm các tags, dùng để biểu diễn cách thông tin khác liên quan đến node như, số nhà, tên đường,...
+```
+<node id="1008752956" visible="true" version="3" changeset="72909444" timestamp="2019-08-01T17:47:19Z" user="mama_bear" uid="6980194" lat="21.0199102" lon="105.8496639">
+  <tag k="addr:country" v="VN"/>
+  <tag k="addr:housenumber" v="80a"/>
+  <tag k="addr:street" v="Phố Bà Triệu"/>
+ </node>
+```
 
+#### Way
+Các nodes có thể liên kết với nhau để tạo thành các **ways** (ví dụ như một con đường, 1 dòng sông).
 
+Nếu node đầu vào node cuối của một way được liên kết với nhau, ta có một **closed way**. Cấu trúc này có thể được sử dụng để tạo thành các tòa nhà, công viên, hồ nước,...
 
+Ngoài ra way có thể chứa thêm các tags để cung cấp thêm các metadata cần thiết.
+
+Một số ví dụ về way
+
+A closed way:
+```
+<way id="9566428" visible="true" version="9" changeset="72991951" timestamp="2019-08-04T15:08:38Z" user="TuanIfan" uid="625303">
+  <nd ref="74127918"/>
+  <nd ref="309602506"/>
+  <nd ref="74127919"/>
+  <nd ref="5857305469"/>
+  <nd ref="309602519"/>
+  <nd ref="74127921"/>
+  <nd ref="309602531"/>
+  <nd ref="74127922"/>
+  <nd ref="309602462"/>
+  <nd ref="74127918"/>
+  <tag k="name" v="Đảo Rùa"/>
+  <tag k="name:en" v="Turtle Isle"/>
+ </way>
+```
+A normal way:
+```
+<way id="9566542" visible="true" version="10" changeset="68385112" timestamp="2019-03-21T19:14:26Z" user="KB Kang" uid="680210">
+  <nd ref="1893253381"/>
+  <nd ref="1893253440"/>
+  <tag k="bridge" v="yes"/>
+  <tag k="highway" v="footway"/>
+  <tag k="layer" v="1"/>
+  <tag k="material" v="wood"/>
+  <tag k="name" v="Cầu Thê Húc"/>
+  <tag k="name:de" v="Brücke der aufgehenden Sonne"/>
+  <tag k="name:en" v="Morning Sunlight Bridge"/>
+  <tag k="name:id" v="Jambatan The Huc"/>
+  <tag k="name:ko" v="테훅교"/>
+  <tag k="name:ru" v="Мост Восходящего солнца"/>
+  <tag k="name:vi" v="Cầu Thê Húc"/>
+  <tag k="tourism" v="attraction"/>
+ </way>
+```
+
+#### Relation
+Relation được sử dụng để tổ chức các nodes và ways thành một tổng thể nhất quán. Ví dụ hồ Hoàn Kiếm sẽ được bao quanh bởi mốt số con đường nhất định. Relation cũng sẽ chứa các tags dùng để mô tả chi tiết relation đó.
+
+Ví dụ về relation:
+```
+<relation id="198437" visible="true" version="13" changeset="75008366" timestamp="2019-09-27T12:38:04Z" user="Marc Choisy" uid="8836956">
+  <member type="way" ref="9566396" role="outer"/>
+  <member type="way" ref="39168425" role="inner"/>
+  <member type="way" ref="9566428" role="inner"/>
+  <tag k="alt_name" v="Hồ Gươm"/>
+  <tag k="alt_name:de" v="Schwertsee"/>
+  <tag k="alt_name:en" v="Sword Lake"/>
+  <tag k="alt_name:vi" v="Hồ Gươm"/>
+  <tag k="name" v="Hồ Hoàn Kiếm"/>
+  <tag k="name:de" v="Hoan-Kiem-See"/>
+  <tag k="name:en" v="Hoàn Kiếm Lake"/>
+  <tag k="name:id" v="Danau Hoan Kiem"/>
+  <tag k="name:ja" v="ホアンキエム湖"/>
+  <tag k="name:ko" v="호안끼엠 호"/>
+  <tag k="name:vi-hani" v="湖還劍"/>
+  <tag k="name:zh" v="还剑湖"/>
+  <tag k="name:zh-Hans" v="还剑湖"/>
+  <tag k="name:zh-Hant" v="還劍湖"/>
+  <tag k="natural" v="water"/>
+  <tag k="old_name" v="Hồ Lục Thủy"/>
+  <tag k="old_name:vi" v="Hồ Lục Thủy"/>
+  <tag k="old_name:zh" v="绿水湖"/>
+  <tag k="type" v="multipolygon"/>
+  <tag k="water" v="lake"/>
+  <tag k="wikidata" v="Q1151254"/>
+  <tag k="wikipedia" v="vi:Hồ Hoàn Kiếm"/>
+ </relation>
+```
+
+#### Tags
+Được dùng để mô tả chi tiết các thành phần của dữ liệu bản đồ. Tag được cấu thành dưới dạng key-value. Một số loại tags có thể kể ra:
+- Tên đường
+- Loại đường
+- Số nhà
+- Chất liệu
+- ...
+
+Ví dụ về tags:
+```
+<tag k="name" v="Hà Nội"/>
+<tag k="amenity" v="cafe"/>
+<tag k="internet_access" v="wlan"/>
+<tag k="tourism" v="hotel"/>
+```
 
 
 
