@@ -48,3 +48,30 @@ Ví dụ, dữ liệu cho khu vực châu Á sẽ được truy cập tại đâ
 Dữ liệu cho Việt Nam nói riêng và các quốc gia khác nói chung sẽ gồm 2 phần chính:
 - Dữ liệu hiện tại: https://download.geofabrik.de/asia/vietnam-latest.osm.pbf (khoảng 70MB)
 - Dữ liệu cập nhật: https://download.geofabrik.de/asia/vietnam-updates
+
+Dùng lệnh sau để tải dữ liệu từ Geofabrik
+```
+wget https://download.geofabrik.de/asia/vietnam-latest.osm.pbf
+```
+Ngoài các công cụ trên, chúng ta có thể sử dụng công cụ được cung cấp bởi Humanitarian OpenStreetMap Team để export dữ liệu cho các khu vực nhỏ hơn, như quận, huyện, thành phố: https://export.hotosm.org
+
+> beMaps sẽ sử dụng nguồn dữ liệu bản đồ chính từ Geofabrik
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
