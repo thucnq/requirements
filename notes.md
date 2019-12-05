@@ -57,6 +57,16 @@ Ngoài các công cụ trên, chúng ta có thể sử dụng công cụ đượ
 
 > beMaps sẽ sử dụng nguồn dữ liệu bản đồ chính từ Geofabrik
 
+## OSM API
+OSM cung cấp một hệ thống các APIs cho phép các contributors tạo và cập nhật các thay đổi trên dữ liệu bản đồ hiện tại. Các API requests sẽ được gửi đến và được xử lý bởi các servers của OSM.
+
+API documentation: https://wiki.openstreetmap.org/wiki/API_v0.6
+
+> Đối với beMaps, chúng ta không cần quan tâm quá nhiều đến các APIs trên. APIs thường được sử dụng chính bởi các contributors. Ngoài ra các APIs trên được hosted và quản lý bởi OSM, nên việc sử dụng chúng thường có giới hạn. Các APIs này có thể được sử dụng để tìm hiểu về cấu trúc dữ liệu bên dưới của OSM.
+
+## OSM Data Model
+
+
 
 
 
