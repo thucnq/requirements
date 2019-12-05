@@ -373,6 +373,159 @@ Có khá nhiều công cụ open-source có thể được sử dụng để xâ
 - **Leaflet** (https://leafletjs.com): Tương tự như OpenLayers, Leaflet là một thư viên JavaScript dùng để tạo các map động. Leaflet có thể được sử dụng để render các map tiles, tạo map markers, tạo các hành động như zooming, panning, scaling,...
 
 ##### Routing
+Chúng ta sẽ có một section riêng để bàn chi tiết về việc routing trong OSM. Quá trình routing trong OSM được thực hiện sử dụng **OSRM** và **GraphHopper**
+
+**OSRM**: là một công cụ open-source hoàn toàn được viết bằng C++. OSRM cung cấp các toolkit cho việc xây dựng cả backend và frontend để giải quyết vấn đề routing. Các bài toán mà OSRM có thể giải quyết bao gồm:
+- Nearest: tìm các điểm lân cận cho một tọa độ cho sẵn (thường là tìm các POIs)
+- Route: tìm đường đi nhanh nhất giữa hai tọa độ cho trước.
+- Table (distance matrix): tính toán khoảng cách, thời gian, và cách đi nhanh nhất giữa các cặp tọa độ cho trước.
+- Match: tìm tọa độ dựa vào tín hiệu GPS
+- Trip: giải bài toán Travelling Salesman Problem
+- Tile: tạo các Mapbox vector tiles với các thông tin routing đính kèm.
+
+Reference: https://github.com/Project-OSRM/osrm-backend/blob/master/docs/http.md
+
+Một số ví dụ sử dụng OSRM API để tìm đường ngắn nhất giữa hai điểm trên bản đồ.
+
+API cần sử dụng là:
+```
+GET /route/v1/{profile}/{coordinates}?alternatives={true|false|number}&steps={true|false}&geometries={polyline|polyline6|geojson}&overview={full|simplified|false}&annotations={true|false}
+```
+
+Trong đó:
+
+|Option      |Giá trị                                       |Mô tả                                                                    |
+|------------|---------------------------------------------|-------------------------------------------------------------------------------|
+|alternatives|`true`, `false` (default), or Number         |Search for alternative routes. Passing a number `alternatives=n` searches for up to `n` alternative routes.\*                            |
+|steps       |`true`, `false` (default)                    |Returned route steps for each route leg                                        |
+|annotations |`true`, `false` (default), `nodes`, `distance`, `duration`, `datasources`, `weight`, `speed`  |Returns additional metadata for each coordinate along the route geometry.      |
+|geometries  |`polyline` (default), `polyline6`, `geojson` |Returned route geometry format (influences overview and per step)              |
+|overview    |`simplified` (default), `full`, `false`      |Add overview geometry either full, simplified according to highest zoom level it could be display on, or not at all.|
+|continue\_straight |`default` (default), `true`, `false`  |Forces the route to keep going straight at waypoints constraining uturns there even if it would be faster. Default value depends on the profile. |
+|waypoints   | `{index};{index};{index}...`                |Treats input coordinates indicated by given indices as waypoints in returned Match object. Default is to treat all input coordinates as waypoints.    |
+
+Giả sử chúng ta cần tìm đường ngắn nhất giữa Hồ Hoàn Kiếm và Nhà thờ Lớn, sử dụng request sau:
+```
+http://router.project-osrm.org/route/v1/driving/105.85239,21.02876;105.85025,21.02703?overview=false&alternatives=true&steps=true
+```
+Dữ liệu trả về sẽ tương tự như sau
+```
+{
+  "code": "Ok",
+  "routes": [
+    {
+      "distance": 569.5,
+      "duration": 252.3,
+      "legs": [
+        {
+          "distance": 569.5,
+          "duration": 252.3,
+          "steps": [
+            ...
+            {
+              "distance": 8.1,
+              "driving_side": "right",
+              "duration": 5.8,
+              "geometry": "qyi_Ck{`eSMD",
+              "intersections": [
+                {
+                  "bearings": [
+                    165,
+                    195,
+                    345
+                  ],
+                  "entry": [
+                    true,
+                    false,
+                    true
+                  ],
+                  "in": 1,
+                  "location": [
+                    105.850299,
+                    21.026969
+                  ],
+                  "out": 2
+                }
+              ],
+              "maneuver": {
+                "bearing_after": 340,
+                "bearing_before": 16,
+                "location": [
+                  105.850299,
+                  21.026969
+                ],
+                "modifier": "straight",
+                "type": "turn"
+              },
+              "mode": "driving",
+              "name": "Phố Nhà Chung",
+              "weight": 5.8
+            },
+            {
+              "distance": 0,
+              "driving_side": "right",
+              "duration": 0,
+              "geometry": "_zi_Ce{`eS",
+              "intersections": [
+                {
+                  "bearings": [
+                    161
+                  ],
+                  "entry": [
+                    true
+                  ],
+                  "in": 0,
+                  "location": [
+                    105.850273,
+                    21.027038
+                  ]
+                }
+              ],
+              "maneuver": {
+                "bearing_after": 0,
+                "bearing_before": 341,
+                "location": [
+                  105.850273,
+                  21.027038
+                ],
+                "type": "arrive"
+              },
+              "mode": "driving",
+              "name": "Phố Nhà Chung",
+              "weight": 0
+            }
+          ],
+          "summary": "Phố Lê Thái Tổ, Phố Quang Trung",
+          "weight": 339.2
+        }
+      ],
+      "weight": 339.2,
+      "weight_name": "routability"
+    }
+  ],
+  "waypoints": [
+    {
+      "distance": 102.32887047821046,
+      "hint": "-uFRhv___38AAAAAVQAAAGYBAABLAQAAAAAAAJZP4kFaSjxD_vt8QgAAAAArAAAAZgEAAHMAAADOXAAADipPBrHfQAHmLU8GmN9AAQUA3wt1cxsx",
+      "location": [
+        105.851406,
+        21.028785
+      ],
+      "name": "Phố Lê Thái Tổ"
+    },
+    {
+      "distance": 2.549732775530881,
+      "hint": "rOFRhv___386AAAASwEAAAAAAADXAAAAmKYBQQ0GTkIAAAAAyNQaQjoAAACmAAAAAAAAAGwAAADOXAAAoSVPBt7YQAGKJU8G1thAAQAATxV1cxsx",
+      "location": [
+        105.850273,
+        21.027038
+      ],
+      "name": "Phố Nhà Chung"
+    }
+  ]
+}
+
+```
 
 
 
