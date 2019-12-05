@@ -527,7 +527,18 @@ Dữ liệu trả về sẽ tương tự như sau
 
 ```
 
+**GraphHopper**: cung cấp các API cho việc xử lý directions and routing. Công cụ này không open-source hoàn toàn, tuy nhiên nó có khá nhiều chức năng liên quan đến việc giải quyết các bài toàn tối ưu. Đặc biệt công cu này cung cấp cả chức năng khá quan trong là *geocoding*. Cụ thể như sau:
+- Routing and nagivation
+- Routing optimization
+- Geocoding
+- Time-dependent route optimization
+- Map matching
+- Distance matrices
+- Isochrone calculation
 
+**GraphHopper** cũng cung cấp một số công cụ open-source. Trong đó 2 công cụ nổi bật nhất là:
+- Jsprit (https://github.com/graphhopper/jsprit): 
+- Routing Engine (https://github.com/graphhopper/graphhopper): 
 
 
 
