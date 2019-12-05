@@ -559,7 +559,83 @@ Trong phần sau chúng ta sẽ làm rõ hơn về map layers trong OpenStreetMa
 
 Mỗi map layer cung cấp một hiệu ứng hình ảnh khác nhau. Các map layer có thể được sử dụng cùng nhau để cung cấp nhiều dữ liệu hơn cho map hiện tại.
 
+#### Data browser
+Các thành thần của map (node, way, relation,...) sẽ có đường dẫn truy cập tương ứng trên OSM. Truy cấp các URL đó sẽ cung cấp các dữ liệu chi tiết về các thành phần trên.
 
+### Tiles, Tile Rendering và Tile Renderers
+#### Tiles
+Lưu trữ và render toàn bộ dữ liệu bản đồ của một vùng rộng là không khả thi và tốn khá nhiều tài nguyên hệ thống. Do vậy OSM và các nhà cung cấp bản đồ khác như Google Maps sử dụng **map tiles**. **Tiles** là các ảnh bitmap hình vuông, được sử dụng trong một grid để hiển thị bản đồ của một khu vực.
+
+**Tiles** thường có kích thước 256x256 pixels. Chúng được render từ các cơ sở dữ liệu bản đồ. Ngoài ra **tiles** cũng có thể có các size khác như:
+- 64x64: sử dụng cho môi trường mobile
+- 512x512: sử dụng cho map có độ phân giải cao
+
+OSM không cho phép sử dụng các **tiles** được cung cấp trực tiếp từ OSM server. Để sử dụng OSM chúng ta có thể:
+- Sử dụng dữ liệu OSM, import dữ liệu đó vào PostgreSQL và sử dụng đữ liệu đã import để tạo các map tiles
+- Sử dụng các dịch vụ của bên thứ 3 như OpenMapTiles (https://openmaptiles.org)
+
+> Đối với beMaps, việc tạo các tile sẽ được thực hiển bởi be mà không sử dụng bên thứ 3.
+
+**Tileset** là tập hợp các tiles dùng để tạo nên một khu vực trên map. Tileset thường có zoom levels cho phép hiển thị các mức độ chi tiết khác nhau của bản đồ. Tileset thường không được hiển thị cùng một thời điểm OSM sử dụng các thư viện JavaScript giúp cho việc tải và hiển thị các map tiles được diễn ra ở background. Một số thư viện phổ biến:
+- OpenLayers
+- Leaflet
+
+#### Tile Rendering
+Title rendering là quá trình chuyển đổi dữ liệu map của OSM sang các map tiles và hiển thị các map tiles đó trên frontend (web browser hoặc mobile applications). Quá trình này thường tiêu tốn khá nhiều tài nguyên hệ thống.
+
+Các map tiles không được tạo theo thời gian thực. Tiles thường được tạo trước và lưu lại trên đĩa cứng.
+
+#### Serving Tiles
+Tiles được cung cấp đến người dùng cuối thông qua **tile servers**
+
+![](https://switch2osm.org/serving-tiles/serving-tiles.png)
+
+Chúng ta sẽ đi qua một ví dụ đơn giản trong việc khởi tạo và serving map tiles cho tập dữ liệu là bản đồ của Việt Nam.
+
+Serving tiles yêu cầu cấu hình server tương đối tốt và ổn định. Ở đây chúng ta sẽ giả sử server có cấu hính như sau:
+- Storage: 10 - 20GB
+- Memory 4GB
+- 4-cores CPU
+
+OSM sử dụng Apache web server để tiếp nhận requests và truyền các requests đó đến **mod_tile**. **mode_tile** là một extension của Apache phục vụ cho việc rendering và serving các map tiles.
+
+Các tác vụ chính của **mod_tile** bao gồm:
+- Kiểm tra tile đã được tạo và sẵn sàng để sử dụng
+- Kiểm tra tile xem có cần được update không
+- Nếu tile đã sẵn sàng, tile sẽ được gửi trực tiếp về cho bên client
+- Nếu tile cần update hoặc render từ đầu, mod_tile sẽ khởi tạo một **rendering request** và đẩy request đó vào hàng đợi (queue). Renderer sẽ pop request từ hàng đợi, thực hiện việc render và trả lại dữ liệu cho bên client.
+
+Để xây dựng một tile server đơn giản, chúng ta cần các software sau:
+- **mod_tile** for serving (Apache)
+- **renderd** as rendering daemon
+- **mapnik** for the actual render
+
+Đầu tiên chúng ta cần cài đặt các packages cần thiết
+```
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:kakrueger/openstreetmap
+sudo apt update
+sudo apt install libapache2-mod-tile
+```
+Các lệnh trên sẽ giúp chúng ta cài đặt **mod_tile** và các phụ thuộc cần thiết khác.
+
+Tiếp theo chúng ta cần download dữ liệu bản đồ Việt Nam và import dữ liệu đó vào PostgreSQL (đã trình bày trong phần **osm2pgsql**)
+
+```
+wget https://download.geofabrik.de/asia/vietnam-latest.osm.pbf
+osm2pgsql --slim -C 1500 --number-processes 4 vietnam-latest.osm.pbf
+```
+
+**mod_tile** được sử dụng để render các tiles với các cập nhập mới nhất. Các tile cần update sẽ được **mod_tile** xử lý trong quá trình serving. **mod_tile** sẽ kiểm tra các timestamp của tile và detect các tile đã outdated.
+
+Cuối cùng chúng ta cần khởi động lại rendering deamon:
+```
+sudo /etc/init.d/renderd restart
+```
+
+#### Tile renderers
+OSM sử dụng Mapnik để render layer chuẩn.
+Mapnik thực hiện việc render thông quá **mod_tile**. Mapnik đồng thời quản lý việc caching và queueing các rendering requests. Khi một tile được đánh giá là **dirty** (outdated) dựa vào timestamp của tile đó, Mapnik sẽ thực hiện việc render lại tile đó.
 
 
 
