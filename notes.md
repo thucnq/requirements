@@ -184,9 +184,9 @@ Ví dụ về tags:
 <tag k="tourism" v="hotel"/>
 ```
 
+## OSM System Architecture 
 
-
-
+![OSM System Components](https://wiki.openstreetmap.org/w/images/2/27/OSM_Components.svg)
 
 
 
