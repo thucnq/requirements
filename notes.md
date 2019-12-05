@@ -537,8 +537,10 @@ Dữ liệu trả về sẽ tương tự như sau
 - Isochrone calculation
 
 **GraphHopper** cũng cung cấp một số công cụ open-source. Trong đó 2 công cụ nổi bật nhất là:
-- Jsprit (https://github.com/graphhopper/jsprit): 
-- Routing Engine (https://github.com/graphhopper/graphhopper): 
+- Jsprit (https://github.com/graphhopper/jsprit): một java-based toolkit được sử dụng để giải quyết bài toán Traveling Salesman Problems cũng như Vehicle Routing Problems
+- Routing Engine (https://github.com/graphhopper/graphhopper): được sử dụng để giải quyết các bài toán liên quan đến routing như tìm đương đi ngắn nhất. Routing Engine này làm việc khá hiểu quả với OpenStreetMap data.
+
+> Đối với beMaps, chúng ta sẽ tập trung chủ yếu vào OSRM. Trong những phần sau, chúng ta sẽ tìm hiểu rõ hơn về các thuật toán OSRM sử dung, các APIs cho backend mà OSRM cung cấp, cũng như cách để triển khai OSRM trên môi trường th
 
 
 
