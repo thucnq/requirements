@@ -638,7 +638,473 @@ OSM sử dụng Mapnik để render layer chuẩn.
 Mapnik thực hiện việc render thông quá **mod_tile**. Mapnik đồng thời quản lý việc caching và queueing các rendering requests. Khi một tile được đánh giá là **dirty** (outdated) dựa vào timestamp của tile đó, Mapnik sẽ thực hiện việc render lại tile đó.
 
 ## Nominatim 
+Nominatim là công cụ tìm kiếm dữ liệu OSM bằng cách nhập tên, địa chỉ hoặc tọa độ.
+### Nominatim database
+![Nominatim database](./nominatim-db-schemas.png)
+
+### Geocoding API
+Geocoding API cho phép tìm kiếm một hoặc nhiều vị trí từ văn bản mô tả. Nominatim hỗ trợ tìm kiếm bằng cả hai kiểu có cấu trúc và tự do. Với beMap chúng ta quan tâm đến dạng tìm kiếm bằng văn bản tự do.
+#### Cú pháp
+```
+<domain>/search?<query>
+```
+Trong đó: 
+- `domain` là tên miền / địa chỉ máy chủ (ví dụ: https://nominatim.openstreetmap.org, localhost:3000)
+- `query` là truy vấn với các tham số bên dưới
+
+#### Tham số
+
+|Tham số     | Loại tham số | Ý nghĩa | Khoảng giá trị |Ví dụ |
+|------------|--------------|---------|---------------|-------|
+|q|chính| từ hoặc cụm từ xuất hiện trong kết quả |  |q=ha+noi |
+|format|định dạng kết quả| yêu cầu kết quả là 1 trong các định dạng cột bên|xml / json / jsonv2 / geojson / geocodejson/ html. Mặc định: xml | format=html|
+|addressdetails|       chi tiết kết quả   | thêm chi tiết vị trí vào kết quả hay không |  0 hoặc 1. Mặc định: 1| addressdetails=0|
+|namedetails|      chi tiết kết quả    | thêm các tên khác cảu địa chỉ vào kết quả hay không |0 hoặc 1. Mặc định: 0| namedetails=1|
+|countrycodes|      lọc kết quả    | giới hạn kết quả trong một quốc gia | Cột country code trong bảng [Country codes](https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes) | countrycodes=vn,de|
+|exclude_place_ids|     lọc kết quả     |loại bỏ một số địa điểm không mong muốn|  |exclude_place_ids=595794,595795 |
+|limit|lọc kết quả| giới hạn số kết quả trả về |0 < limit <= 50. Mặc định: 10 |limit=1 |
+|email|khác|nếu gọi số lượng lớn yêu cầu, cần cung cấp email để xác thực|  |email=map@be.xyz |
+
+#### Ví dụ
+- Tác nhân muốn lấy thông tin chi tiết vị trí đầu tiên có với từ khoá `hồ gươm`, định dạng `json`, trên lãnh thổ `Việt Nam`.
+
+Yêu cầu: 
+```
+GET: https://nominatim.openstreetmap.org/?addressdetails=1&q=hồ+gươm&format=json&limit=1&countrycodes=vn
+```
+
+Kết quả:
+```
+[
+  {
+    "place_id": 198136364,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+    "osm_type": "relation",
+    "osm_id": 198437,
+    "boundingbox": ["21.0259197", "21.0316049", "105.8512023", "105.8535692"],
+    "lat": "21.0287601",
+    "lon": "105.852585241026",
+    "display_name": "Hồ Hoàn Kiếm, Phố Tràng Thi, Hàng Trống, Hoàn Kiếm, Quận Hoàn Kiếm, Hà Nội, 01235, Việt Nam",
+    "class": "natural",
+    "type": "water",
+    "importance": 0.482526166251558,
+    "address": {
+      "water": "Hồ Hoàn Kiếm",
+      "road": "Phố Tràng Thi",
+      "suburb": "Hàng Trống",
+      "town": "Hoàn Kiếm",
+      "county": "Quận Hoàn Kiếm",
+      "city": "Hà Nội",
+      "postcode": "01235",
+      "country": "Việt Nam",
+      "country_code": "vn"
+    }
+  }
+]
+```
+- Tác nhân muốn lấy thông tin chi tiết vị trí đầu tiên có với từ khoá `hồ gươm`, định dạng html, trên lãnh thổ Việt Nam.
+
+Yêu cầu:
+```
+GET: https://nominatim.openstreetmap.org/?addressdetails=1&q=hồ+gươm&format=html&limit=1&countrycodes=vn
+```
+
+Kết quả:
+![geocoding html result](./geocoding-html-result.png)
 
 
+  
+### Autocomplete API
+Nominatim không hỗ trợ API Autocomplete, xem xét thay thế bằng [Pelias](http://pelias.io/)
+Pelias là phần mềm mã hoá địa lý mã nguồn mở, xây dựng trên Elasticsearch. Cơ sở dữ liệu có chứa dữ liệu về các địa điểm và con đường của OSM.
+
+#### Cú pháp
+```
+<domain>/reverse?<query>
+```
+Trong đó:
+- `domain` là tên miền / địa chỉ máy chủ (vd: https://api.geocode.earth/v1, localhost:3000)
+- `query` là truy vấn với các tham số bên dưới
+
+#### Tham số
+|Tham số     | Loại tham số | Ý nghĩa | Khoảng giá trị |Ví dụ |
+|------------|--------------|---------|---------------|-------|
+|text|chính| từ hoặc cụm từ xuất hiện trong kết quả |  |text=london |
+|api_key|chính, bắt buộc| api_key đăng ký với Pelias |  |api_key=ge-6071d21825e9421c |
+|size|giới hạn kết quả| số lượng kết quả trả về |size > 0  |size=1 |
+|focus.point.lat|giới hạn kết quả| yêu cầu kết quả quanh vĩ độ |-180 < focus.point.lat <= 180. Mặc định: ưu tiên kết quả nổi tiếng|focus.point.lat=40.72579524 |
+|focus.point.lon|giới hạn kết quả| yêu cầu kết quả quanh kinh độ. | -180 < focus.point.lon <= 180. Mặc định: ưu tiên kết quả nổi tiếng|focus.point.lon=-73.980560 |
+|sources|lọc kết quả|lọc nguồn dữ liệu  | openstreetmap / osm / openaddresses / oa / geonames / gn / whosonfirst / wof |sources=openstreetmap|
+|boundary.circle.lat|lọc kết quả| yêu cầu kết quả quanh vĩ độ |-180 < boundary.circle.lat <= 180  |boundary.circle.lat=40.7257952|
+|boundary.circle.lon|lọc kết quả| yêu cầu kết quả quanh vĩ độ | -180 < boundary.circle.lon <= 180 |boundary.circle.lon=-73.980560|
+|boundary.circle.radius|lọc kết quả|yêu cầu kết quả quanh bán kính (km) | Mặc định: 50 |boundary.circle.radius=35 |
+|boundary.country|lọc kết quả| yêu cầu kết quả trong quốc gia |  Cột country code trong bảng [Country codes](https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes) | boundary.country=’VN,FRA’ |
+
+#### Ví dụ
+- Tác nhân muốn tìm `Thành phố Hồ Chí Minh`, nhập `ho chi`
+
+Yêu cầu:
+```
+GET: https://api.geocode.earth/v1/autocomplete?text=ho%20chi&api_key=ge-6071d21825e9421c
+```
+Kết quả:
+```
+{
+  "geocoding": {
+    "version": "0.2",
+    "attribution": "https://geocode.earth/guidelines",
+    "query": {
+      "text": "ho chi",
+      "parser": "pelias",
+      "parsed_text": { "subject": "ho", "locality": "ho", "admin": "chi" },
+      "size": 10,
+      "layers": [
+        "venue",
+        "street",
+        "country",
+        "macroregion",
+        "region",
+        "county",
+        "localadmin",
+        "locality",
+        "borough",
+        "neighbourhood",
+        "continent",
+        "empire",
+        "dependency",
+        "macrocounty",
+        "macrohood",
+        "microhood",
+        "disputed",
+        "postalcode",
+        "ocean",
+        "marinearea"
+      ],
+      "private": false,
+      "lang": {
+        "name": "Vietnamese",
+        "iso6391": "vi",
+        "iso6393": "vie",
+        "defaulted": false
+      }
+    },
+    "warnings": ["performance optimization: excluding 'address' layer"],
+    "engine": { "name": "Pelias", "author": "Mapzen", "version": "1.0" },
+    "timestamp": 1575444412188
+  },
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [106.66667, 10.75] },
+      "properties": {
+        "id": "421176809",
+        "gid": "whosonfirst:locality:421176809",
+        "layer": "locality",
+        "source": "whosonfirst",
+        "source_id": "421176809",
+        "name": "Thành phố Hồ Chí Minh",
+        "accuracy": "centroid",
+        "country": "Việt Nam",
+        "country_gid": "whosonfirst:country:85632763",
+        "country_a": "VNM",
+        "region": "Thành phố Hồ Chí Minh",
+        "region_gid": "whosonfirst:region:85680809",
+        "region_a": "HC",
+        "county": "Quan 8",
+        "county_gid": "whosonfirst:county:1108782041",
+        "locality": "Thành phố Hồ Chí Minh",
+        "locality_gid": "whosonfirst:locality:421176809",
+        "continent": "Châu Á",
+        "continent_gid": "whosonfirst:continent:102191569",
+        "label": "Thành phố Hồ Chí Minh, Việt Nam"
+      },
+      "bbox": [106.66667, 10.75, 106.66667, 10.75]
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [111.680538, 40.815902] },
+      "properties": {
+        "id": "102027913",
+        "gid": "whosonfirst:locality:102027913",
+        "layer": "locality",
+        "source": "whosonfirst",
+        "source_id": "102027913",
+        "name": "Hohhot",
+        "accuracy": "centroid",
+        "country": "Trung Quốc",
+        "country_gid": "whosonfirst:country:85632695",
+        "country_a": "CHN",
+        "region": "Nội Mông",
+        "region_gid": "whosonfirst:region:85669847",
+        "region_a": "NM",
+        "county": "Huhehaote",
+        "county_gid": "whosonfirst:county:890513779",
+        "locality": "Hohhot",
+        "locality_gid": "whosonfirst:locality:102027913",
+        "continent": "Châu Á",
+        "continent_gid": "whosonfirst:continent:102191569",
+        "label": "Hohhot, Trung Quốc"
+      },
+      "bbox": [111.644944101, 40.7756927228, 111.770285539, 40.8602232705]
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-3.096817, 53.335465] },
+      "properties": {
+        "id": "node/2093633700",
+        "gid": "openstreetmap:venue:node/2093633700",
+        "layer": "venue",
+        "source": "openstreetmap",
+        "source_id": "node/2093633700",
+        "name": "Ho Ho Cottage (Chinese)",
+        "accuracy": "point",
+        "country": "Vương quốc Liên hiệp Anh và Bắc Ireland",
+        "country_gid": "whosonfirst:country:85633159",
+        "country_a": "GBR",
+        "macroregion": "Anh",
+        "macroregion_gid": "whosonfirst:macroregion:404227469",
+        "region": "Wirral",
+        "region_gid": "whosonfirst:region:85684519",
+        "region_a": "WQ",
+        "locality": "Heswall",
+        "locality_gid": "whosonfirst:locality:101872157",
+        "continent": "Châu  u",
+        "continent_gid": "whosonfirst:continent:102191581",
+        "label": "Ho Ho Cottage (Chinese), Heswall, Anh, Vương quốc Liên hiệp Anh và Bắc Ireland"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-97.675828, 30.410268] },
+      "properties": {
+        "id": "node/2548060800",
+        "gid": "openstreetmap:venue:node/2548060800",
+        "layer": "venue",
+        "source": "openstreetmap",
+        "source_id": "node/2548060800",
+        "name": "Ho Ho Chinese B.B.Q",
+        "housenumber": "13000",
+        "street": "N IH 35 Bldg. 6",
+        "postalcode": "78753",
+        "accuracy": "point",
+        "country": "Hoa Kỳ",
+        "country_gid": "whosonfirst:country:85633793",
+        "country_a": "USA",
+        "region": "Texas",
+        "region_gid": "whosonfirst:region:85688753",
+        "region_a": "TX",
+        "county": "Quận Travis",
+        "county_gid": "whosonfirst:county:102081935",
+        "county_a": "TV",
+        "locality": "Austin",
+        "locality_gid": "whosonfirst:locality:101724577",
+        "neighbourhood": "Coxville",
+        "neighbourhood_gid": "whosonfirst:neighbourhood:85812665",
+        "continent": "Bắc Mỹ",
+        "continent_gid": "whosonfirst:continent:102191575",
+        "label": "Ho Ho Chinese B.B.Q, Austin, TX, USA"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-79.286094, 43.044981] },
+      "properties": {
+        "id": "way/663636841",
+        "gid": "openstreetmap:venue:way/663636841",
+        "layer": "venue",
+        "source": "openstreetmap",
+        "source_id": "way/663636841",
+        "name": "Ho Ho Chinese Food",
+        "accuracy": "point",
+        "country": "Canada",
+        "country_gid": "whosonfirst:country:85633041",
+        "country_a": "CAN",
+        "region": "Ontario",
+        "region_gid": "whosonfirst:region:85682057",
+        "region_a": "ON",
+        "county": "Niagara",
+        "county_gid": "whosonfirst:county:890456991",
+        "locality": "Pelham",
+        "locality_gid": "whosonfirst:locality:101736395",
+        "continent": "Bắc Mỹ",
+        "continent_gid": "whosonfirst:continent:102191575",
+        "label": "Ho Ho Chinese Food, Pelham, ON, Canada"
+      },
+      "bbox": [-79.286201, 43.044899, -79.285987, 43.045062]
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-71.52779, 41.870717] },
+      "properties": {
+        "id": "way/230777844",
+        "gid": "openstreetmap:venue:way/230777844",
+        "layer": "venue",
+        "source": "openstreetmap",
+        "source_id": "way/230777844",
+        "name": "Ho-Ho Chinese Restaurant",
+        "accuracy": "point",
+        "country": "Hoa Kỳ",
+        "country_gid": "whosonfirst:country:85633793",
+        "country_a": "USA",
+        "region": "Rhode Island",
+        "region_gid": "whosonfirst:region:85688509",
+        "region_a": "RI",
+        "county": "Providence County",
+        "county_gid": "whosonfirst:county:102081597",
+        "county_a": "PR",
+        "localadmin": "Smithfield",
+        "localadmin_gid": "whosonfirst:localadmin:404488381",
+        "continent": "Bắc Mỹ",
+        "continent_gid": "whosonfirst:continent:102191575",
+        "label": "Ho-Ho Chinese Restaurant, Smithfield, RI, USA"
+      },
+      "bbox": [-71.527894, 41.8706028, -71.5276866, 41.8708314]
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [103.01588, 21.79391] },
+      "properties": {
+        "id": "1242588277",
+        "gid": "whosonfirst:locality:1242588277",
+        "layer": "locality",
+        "source": "whosonfirst",
+        "source_id": "1242588277",
+        "name": "Hồ Chim",
+        "accuracy": "centroid",
+        "country": "Việt Nam",
+        "country_gid": "whosonfirst:country:85632763",
+        "country_a": "VNM",
+        "region": "Điện Biên",
+        "region_gid": "whosonfirst:region:85680593",
+        "region_a": "DB",
+        "county": "Muong Cha",
+        "county_gid": "whosonfirst:county:1108780961",
+        "locality": "Hồ Chim",
+        "locality_gid": "whosonfirst:locality:1242588277",
+        "continent": "Châu Á",
+        "continent_gid": "whosonfirst:continent:102191569",
+        "label": "Hồ Chim, Việt Nam"
+      },
+      "bbox": [103.01588, 21.79391, 103.01588, 21.79391]
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [126.723927, 37.504838] },
+      "properties": {
+        "id": "way/468414719",
+        "gid": "openstreetmap:venue:way/468414719",
+        "layer": "venue",
+        "source": "openstreetmap",
+        "source_id": "way/468414719",
+        "name": "HO Chicken",
+        "accuracy": "point",
+        "country": "Hàn Quốc",
+        "country_gid": "whosonfirst:country:85632231",
+        "country_a": "KOR",
+        "region": "Incheon",
+        "region_gid": "whosonfirst:region:85673177",
+        "region_a": "IN",
+        "county": "Nam-gu",
+        "county_gid": "whosonfirst:county:1108746503",
+        "locality": "Nhân Xuyên",
+        "locality_gid": "whosonfirst:locality:102026447",
+        "continent": "Châu Á",
+        "continent_gid": "whosonfirst:continent:102191569",
+        "label": "Hàn Quốc Incheon Nam-gu HO Chicken"
+      },
+      "bbox": [126.7238714, 37.5047836, 126.7239834, 37.5048926]
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [106.03708, 21.3733] },
+      "properties": {
+        "id": "1226058045",
+        "gid": "whosonfirst:locality:1226058045",
+        "layer": "locality",
+        "source": "whosonfirst",
+        "source_id": "1226058045",
+        "name": "Hô Chính",
+        "accuracy": "centroid",
+        "country": "Việt Nam",
+        "country_gid": "whosonfirst:country:85632763",
+        "country_a": "VNM",
+        "region": "Bắc Giang",
+        "region_gid": "whosonfirst:region:85680685",
+        "region_a": "BG",
+        "county": "Tan Yen",
+        "county_gid": "whosonfirst:county:1108781147",
+        "locality": "Hô Chính",
+        "locality_gid": "whosonfirst:locality:1226058045",
+        "continent": "Châu Á",
+        "continent_gid": "whosonfirst:continent:102191569",
+        "label": "Hô Chính, Việt Nam"
+      },
+      "bbox": [106.03708, 21.3733, 106.03708, 21.3733]
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [107.328949, 10.455974] },
+      "properties": {
+        "id": "node/6757037492",
+        "gid": "openstreetmap:venue:node/6757037492",
+        "layer": "venue",
+        "source": "openstreetmap",
+        "source_id": "node/6757037492",
+        "name": "chị hồ",
+        "accuracy": "point",
+        "country": "Việt Nam",
+        "country_gid": "whosonfirst:country:85632763",
+        "country_a": "VNM",
+        "region": "Bà Rịa - Vũng Tàu",
+        "region_gid": "whosonfirst:region:85680781",
+        "region_a": "BV",
+        "county": "Dat Do",
+        "county_gid": "whosonfirst:county:1108782001",
+        "continent": "Châu Á",
+        "continent_gid": "whosonfirst:continent:102191569",
+        "label": "chị hồ, Việt Nam"
+      }
+    }
+  ],
+  "bbox": [-97.675828, 10.455974, 126.7239834, 53.335465]
+}
+```
+
+### Kịch bản kết hợp Pelias và Nominatim
+#### Kịch bản chuẩn
+- Tác nhân muốn tìm địa điểm “A B C”, nhập “A" trên giao diện.
+- Hệ thống kiểm tra kết quả của “A” trong cache autocomplete nếu không có gọi api autocomplete (`Pelias`) (các tham số lọc cài đặt dựa trên vị trí hiện tại của tác nhân). Trả về kết quả là mảng các chuỗi “A B", “ A B C”, “A B D” trên giao diện.
+- Tác nhân chọn “A B C”.
+Hệ thống kiểm tra kết quả của “A B C” trong cache geocoding (`Nominatim`) nếu không có gọi api geocoding (các tham số lọc cài đặt dựa trên vị trí hiện tại của tác nhân). Trả về kết quả thông tin địa điểm “A B C”.
+
+#### Kịch bản ngoại lệ 1
+- Tác nhân muốn tìm địa điểm “A B C”, nhập “B" trên giao diện.
+Hệ thống kiểm tra kết quả của “B” trong cache autocomplete nếu không có gọi api autocomplete (các tham số lọc cài đặt dựa trên vị trí hiện tại của tác nhân). Trả về kết quả là mảng các chuỗi “B D", “B E”, “A B C” trên giao diện.
+Tác nhân chọn “A B C”.
+- Hệ thống kiểm tra kết quả của “A B C”trong cache geocoding nếu không có gọi api geocoding (các tham số lọc cài đặt dựa trên vị trí hiện tại của tác nhân). Trả về kết quả thông tin địa điểm “A B C”
+
+#### Kịch bản ngoại lệ 2
+- Tác nhân muốn tìm địa điểm “A B C”, nhập “A" trên giao diện.
+- Hệ thống kiểm tra kết quả của “A” trong cache autocomplete nếu không có gọi api autocomplete (các tham số lọc cài đặt dựa trên vị trí hiện tại của tác nhân). Trả về kết quả là mảng các chuỗi “A B", “ A B C”, “A B D” trên giao diện.
+- Tác nhân nhập tiếp thành chuỗi “A C”
+- Hệ thống kiểm tra kết quả của “A C” trong cache autocomplete nếu không có gọi api autocomplete (các tham số lọc cài đặt dựa trên vị trí hiện tại của tác nhân). Trả về kết quả là mảng các chuỗi “A C E", “ A C F”, “A B C”, “A D C” trên giao diện.
+- Tác nhân chọn “A B C”.
+- Hệ thống kiểm tra kết quả của “A B C”trong cache geocoding nếu không có gọi api geocoding (các tham số lọc cài đặt dựa trên vị trí hiện tại của tác nhân). Trả về kết quả thông tin địa điểm “A B C”
+
+### Ưu điểm
+- Cả Nominatim và Pelias đều là mã nguồn mở và miễn phí, có trên docker
+- Pelias có đầy đủ cơ sở dữ liệu của OSM.
+- Pelias và Nominatim có tham số tương đồng để giới hạn không gian tìm kiếm và lọc kết quả tìm kiếm (text/q, size/limit, boundary.country/ countrycodes)
+- Autocomplete hạn chế sai chính tả cho Nominatim, tăng độ chính xác và giảm không gian tìm kiếm.
+
+### Nhược điểm
+- Nominatim không công khai DB Schema. [DB trong mã nguồn](https://github.com/openstreetmap/Nominatim/blob/master/sql/tables.sql) không giống [DB OSM](https://wiki.openstreetmap.org/w/images/5/58/OSM_DB_Schema_2016-12-13.svg) và không định nghĩa quan hệ giữa các bảng. Quan hệ giữa các bảng định nghĩa trong [tệp perl](https://github.com/openstreetmap/Nominatim/blob/5e45e0b3d7d07180bb914490c81355e6db0f8692/data-sources/wikipedia-wikidata/mysql2pgsql.perl#L754) => khó xác định cấu trúc cơ sở dữ liệu
+- Nominatim chỉ tìm kiếm chính xác, không gợi ý, không chấp nhận gõ sai chính tả.
+
+### Áp dụng cho beMap
+- Cần cải thiện phần gợi ý khi gặp lỗi chính tả liên quan đến ngọng vùng miền.
+- Cache response tại server của mình.
+- Client gọi tối đa 5 - 10 request mỗi giây để đảm bảo trải nghiệm và khả năng chịu tải.
 
 
