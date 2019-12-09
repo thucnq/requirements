@@ -106,6 +106,43 @@ Example request:
 curl "http://127.0.0.1:5000/route/v1/driving/13.388860,52.517037;13.385983,52.496891?steps=true"
 ```
 
+#### Hỗ trợ việc routing thông qua nhiều profile khác nhau
+Nếu việc hỗ trợ routing thông qua nhiều profile khác nhau, dữ liệu routing cho mỗi profile sẽ được chuẩn bị riêng như trong folow ở trên. Ví dụ chúng ta có thể extract dữ liệu từ OSM cho các profile khác nhau như sau:
+
+```
+osrm-extract hanoi.osm.pbf -p profiles/foot.lua
+osrm-extract hanoi.osm.pbf -p profiles/bicycle.lua
+osrm-extract hanoi.osm.pbf -p profiles/car.lua
+```
+
+Sau khi đã tạo dữ liệu routing cho từng profile, mỗi profile sẽ được deploy trên một node nhất định (có thể là 1 server riêng biệt). Chúng ta sẽ sử dụng một reverse proxy để gửi yêu cầu đến từng routing profile phù hợp.
+
+Giả sử 3 profile trên được deploy trên 3 server với thông tin như sau:
+
+```
+Foot profile: http://247.57.106.32:5000
+Bike profile: http://100.206.158.202:5001
+Car profile: http://140.109.149.11:5002
+```
+
+Chúng ta có thể sử dụng NGINX như một reverse proxy như sau:
+
+```
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server ipv6only=on;
+
+        location /route/v1/driving   { proxy_pass http://140.109.149.11:5002; }
+        location /route/v1/walking   { proxy_pass http://247.57.106.32:5000; }
+        location /route/v1/cycling   { proxy_pass http://100.206.158.202:5001; }
+
+        location /           {
+          add_header Content-Type text/plain;
+          return 404 'Unknown profile';
+        }
+}
+```
+
 
 
 
