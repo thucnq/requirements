@@ -29,6 +29,12 @@ OSRM có thể được cài đặt bằng các cách chính sau:
 
 ## Tổng quan về cách sử dụng OSRM
 
+Trước khi làm việc với OSRM chúng ta cần lấy dữ liệu từ OpenStreetMap - tham khảo [tại đây](https://github.com/rnd-forests/requirements/blob/master/notes.md#c%C3%A1ch-truy-xu%E1%BA%A5t-d%E1%BB%AF-li%E1%BB%87u-t%E1%BB%AB-osm)
+
+Chúng ta sẽ ví dụ với dữ liệu từ Hà Nội, dữ liệu OpenStreetMap sẽ được lưu trong tệp với tên `hanoi.osm.pbf`
+
+
+
 
 
 
