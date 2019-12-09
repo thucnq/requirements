@@ -127,6 +127,8 @@ Car profile: http://140.109.149.11:5002
 
 Chúng ta có thể sử dụng NGINX như một reverse proxy như sau:
 
+![](./osrm-reverse-proxy.png)
+
 ```
 server {
         listen 80 default_server;
