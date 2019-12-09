@@ -43,19 +43,68 @@ OSRM cung cấp hai quy trình tiền xử lý dữ liệu:
 
 > Đối với beMaps **Multi-Level Dijkstra (MLD)** sẽ được sử dụng chính do một số tính năng chỉ có trên MLD như việc tìm các route thay thế (alternative routes) ngoài route chính. Ngoài ra, OSRM community sẽ sẽ cung cấp nhiều tính năng mới trên MLD hơn so với CH.
 
+### Các bước cơ bản
+Sau khi cài đặt OSRM chúng ta có thể thao tác trên dữ liệu từ OpenStreetMap sử dụng các tool binary như:
+- osrm-contract
+- osrm-customize
+- osrm-extract
+- osrm-partition 
+- osrm-routed
 
+Các bài toán mà OSRM giải quyết dựa trên lý thuyết đồ thị (Graph Theory). OSRM sẽ không làm việc trực tiếp trên dữ liệu từ OpenStreetMap. Thay vào đó chúng ta cần chuyển đổi dữ liệu từ OSM thành một dạng đồ thị có trọng số và hướng (directed weighted graph). Cụ thể (chúng ta chỉ tập trung vào MLD):
 
+Việc tạo một đồ thị cơ bản sẽ được thực hiện bởi tool `osrm-extract`
+```
+osrm-extract hanoi.osm.pbf -p profiles/car.lua
+```
 
+Tiếp theo dữ liệu sẽ được chia thành các cell một cách đệ quy sử dụng `osrm-partition`
+```
+osrm-partition hanoi.osrm
+```
 
+Tính toán trọng số (weight) cho các liên kết trong đồ thị (edge) sử dụng `osrm-customize`
+```
+osrm-customize hanoi.osrm
+```
 
+Sau các bước trên OSRM sẽ tạo ra khá nhiều files phục vụ cho quá trình giải quyết các bài toàn routing:
+```
+hanoi.osm.pbf		     hanoi.osrm.ebg_nodes	    hanoi.osrm.names	     hanoi.osrm.tls
+hanoi.osrm		     hanoi.osrm.edges		    hanoi.osrm.nbg_nodes     hanoi.osrm.turn_duration_penalties
+hanoi.osrm.cell_metrics      hanoi.osrm.enw		    hanoi.osrm.partition     hanoi.osrm.turn_penalties_index
+hanoi.osrm.cells	     hanoi.osrm.fileIndex	    hanoi.osrm.properties    hanoi.osrm.turn_weight_penalties
+hanoi.osrm.cnbg		     hanoi.osrm.geometry	    hanoi.osrm.ramIndex      
+hanoi.osrm.cnbg_to_ebg	     hanoi.osrm.icd		    hanoi.osrm.restrictions
+hanoi.osrm.datasource_names  hanoi.osrm.maneuver_overrides  hanoi.osrm.timestamp
+hanoi.osrm.ebg		     hanoi.osrm.mldgr		    hanoi.osrm.tld
 
+```
 
+#### Tạo đồ thị từ dữ liệu OpenStreetMap
+Không phải tất cả dữ liệu mà OSM cung cấp đều được dùng cho việc giải quyết vấn đề routing, ví dụ như các tags của nodes hoặc ways. Ngoài ra, dữ liệu từ OSM không có một chuẩn chung duy nhất (có thể dùng các định dạng như PBF, OSM, XML). Do vậy, OSRM sẽ thực hiện bóc tách dữ liệu cần thiết cho việc routing từ dữ liệu gốc của OpenStreetMap.
 
+Công việc này được thực hiện bởi OSRM **extractor** tool. Công cụ này có nhiệm vụ chuyển đổi dữ liệu gốc từ OSM thành cách dạng dữ liệu metadata phục vụ cho routing.
 
+Trong OSRM, việc chuyển đổi dữ liệu sẽ dựa trên các **Profiles**. Profiles định nghĩa các hành vi định tuyến, hay hiểu đơn giản hơn là định nghĩa các phương thức di chuyển (ví dụ như: đi bộ, đi xe đạp, đi oto,...). Profile mô tả việc chúng ta có nên di chuyển trên một tuyến đường nhất định nào đó hoặc di chuyển qua một địa điểm nào đó hay không (ví dụ đường 1 chiều, đường chỉ dành cho oto,...). Đồng thời tìm được thời gian di chuyển cho từng phương thức. Các profile chính cung cấp bởi OSRM bao gồm:
 
+- foot
+- bicycle
+- car
 
+Reference: https://github.com/Project-OSRM/osrm-backend/tree/master/profiles
 
+#### Chạy OSRM thông qua HTTP server
+OSRM cung cấp công cụ để chạy OSRM HTTP server một cách đơn giản:
+```
+osrm-routed -p 5000 -i 0.0.0.0 -t 10 hanoi.osrm 
+```
+Sau khi chạy HTTP server, các API do OSRM cung cấp có thể được truy cập. Chúng ta sẽ bàn về các API rõ hơn trong phần sau.
 
+Example request:
+```
+curl "http://127.0.0.1:5000/route/v1/driving/13.388860,52.517037;13.385983,52.496891?steps=true"
+```
 
 
 
