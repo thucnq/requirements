@@ -656,14 +656,14 @@ Trong đó:
 
 |Tham số     | Loại tham số | Ý nghĩa | Khoảng giá trị |Ví dụ |
 |------------|--------------|---------|---------------|-------|
-|q|chính| từ hoặc cụm từ xuất hiện trong kết quả |  |q=ha+noi |
-|format|định dạng kết quả| yêu cầu kết quả là 1 trong các định dạng cột bên|xml / json / jsonv2 / geojson / geocodejson/ html. Mặc định: xml | format=html|
+|q|chính| (viết tắt của query) văn bản hoặc chuỗi ký tự mô tả về đại điểm muốn định vị |  |q=ha+noi |
+|format|định dạng kết quả trả về| yêu cầu kết quả là 1 trong các định dạng cột bên|xml / json / jsonv2 / geojson / geocodejson/ html. Mặc định: xml | format=html|
 |addressdetails|       chi tiết kết quả   | thêm chi tiết vị trí vào kết quả hay không |  0 hoặc 1. Mặc định: 1| addressdetails=0|
-|namedetails|      chi tiết kết quả    | thêm các tên khác cảu địa chỉ vào kết quả hay không |0 hoặc 1. Mặc định: 0| namedetails=1|
-|countrycodes|      lọc kết quả    | giới hạn kết quả trong một quốc gia | Cột country code trong bảng [Country codes](https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes) | countrycodes=vn,de|
-|exclude_place_ids|     lọc kết quả     |loại bỏ một số địa điểm không mong muốn|  |exclude_place_ids=595794,595795 |
+|namedetails|      chi tiết kết quả    | thêm các tên khác của địa chỉ vào kết quả hay không |0 hoặc 1. Mặc định: 0| namedetails=1|
+|countrycodes|      lọc kết quả    | giới hạn kết quả trong một số quốc gia | Cột country code trong bảng [Country codes](https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes) | countrycodes=vn,de|
+|exclude_place_ids|     lọc kết quả     |id Nominatim của một số địa điểm không mong muốn|  |exclude_place_ids=595794,595795 |
 |limit|lọc kết quả| giới hạn số kết quả trả về |0 < limit <= 50. Mặc định: 10 |limit=1 |
-|email|khác|nếu gọi số lượng lớn yêu cầu, cần cung cấp email để xác thực|  |email=map@be.xyz |
+|email|khác|email xác thực khi gọi số lượng lớn yêu cầu|  |email=map@be.xyz |
 
 #### Ví dụ
 - Tác nhân muốn lấy thông tin chi tiết vị trí đầu tiên có với từ khoá `hồ gươm`, định dạng `json`, trên lãnh thổ `Việt Nam`.
@@ -729,16 +729,16 @@ Trong đó:
 #### Tham số
 |Tham số     | Loại tham số | Ý nghĩa | Khoảng giá trị |Ví dụ |
 |------------|--------------|---------|---------------|-------|
-|text|chính| từ hoặc cụm từ xuất hiện trong kết quả |  |text=london |
+|text|chính| văn bản hoặc chuỗi ký tự mô tả về đại điểm muốn định vị |  |text=london |
 |api_key|chính, bắt buộc| api_key đăng ký với Pelias |  |api_key=ge-6071d21825e9421c |
 |size|giới hạn kết quả| số lượng kết quả trả về |size > 0  |size=1 |
-|focus.point.lat|giới hạn kết quả| yêu cầu kết quả quanh vĩ độ |-180 < focus.point.lat <= 180. Mặc định: ưu tiên kết quả nổi tiếng|focus.point.lat=40.72579524 |
-|focus.point.lon|giới hạn kết quả| yêu cầu kết quả quanh kinh độ. | -180 < focus.point.lon <= 180. Mặc định: ưu tiên kết quả nổi tiếng|focus.point.lon=-73.980560 |
+|focus.point.lat|giới hạn kết quả| yêu cầu kết quả quanh vĩ độ này|-180 < focus.point.lat <= 180. Mặc định: ưu tiên kết quả nổi tiếng|focus.point.lat=40.72579524 |
+|focus.point.lon|giới hạn kết quả| yêu cầu kết quả quanh kinh độ này | -180 < focus.point.lon <= 180. Mặc định: ưu tiên kết quả nổi tiếng hơn|focus.point.lon=-73.980560 |
 |sources|lọc kết quả|lọc nguồn dữ liệu  | openstreetmap / osm / openaddresses / oa / geonames / gn / whosonfirst / wof |sources=openstreetmap|
-|boundary.circle.lat|lọc kết quả| yêu cầu kết quả quanh vĩ độ |-180 < boundary.circle.lat <= 180  |boundary.circle.lat=40.7257952|
-|boundary.circle.lon|lọc kết quả| yêu cầu kết quả quanh vĩ độ | -180 < boundary.circle.lon <= 180 |boundary.circle.lon=-73.980560|
-|boundary.circle.radius|lọc kết quả|yêu cầu kết quả quanh bán kính (km) | Mặc định: 50 |boundary.circle.radius=35 |
-|boundary.country|lọc kết quả| yêu cầu kết quả trong quốc gia |  Cột country code trong bảng [Country codes](https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes) | boundary.country=’VN,FRA’ |
+|boundary.circle.lat|lọc kết quả| yêu cầu kết quả quanh vĩ độ này |-180 < boundary.circle.lat <= 180  |boundary.circle.lat=40.7257952|
+|boundary.circle.lon|lọc kết quả| yêu cầu kết quả quanh vĩ độ này| -180 < boundary.circle.lon <= 180 |boundary.circle.lon=-73.980560|
+|boundary.circle.radius|lọc kết quả|yêu cầu kết quả quanh bán kính này (km) | Mặc định: 50 |boundary.circle.radius=35 |
+|boundary.country|lọc kết quả| yêu cầu kết quả trong một số quốc gia |  Cột country code trong bảng [Country codes](https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes) | boundary.country=’VN,FRA’ |
 
 #### Ví dụ
 - Tác nhân muốn tìm `Thành phố Hồ Chí Minh`, nhập `ho chi`
