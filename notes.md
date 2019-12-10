@@ -655,9 +655,9 @@ Trong đó:
 #### Tham số
 
 |Tham số     | Loại tham số | Ý nghĩa | Khoảng giá trị |Ví dụ |
-|------------|--------------|---------|---------------|-------|
-|q|chính| (viết tắt của query) văn bản hoặc chuỗi ký tự mô tả về đại điểm muốn định vị |  |q=ha+noi |
-|format|định dạng kết quả trả về| yêu cầu kết quả là 1 trong các định dạng cột bên|xml / json / jsonv2 / geojson / geocodejson/ html. Mặc định: xml | format=html|
+|------------|--------------|---------|---------------|-------| 
+|q|chính| (viết tắt của query) văn bản hoặc chuỗi ký tự mô tả về địa điểm muốn định vị |  |q=ha+noi |
+|format|định dạng kết quả trả về| yêu cầu kết quả là 1 trong các định dạng ở cột bên cạnh|xml / json / jsonv2 / geojson / geocodejson/ html. Mặc định: xml | format=html|
 |addressdetails|       chi tiết kết quả   | thêm chi tiết vị trí vào kết quả hay không |  0 hoặc 1. Mặc định: 1| addressdetails=0|
 |namedetails|      chi tiết kết quả    | thêm các tên khác của địa chỉ vào kết quả hay không |0 hoặc 1. Mặc định: 0| namedetails=1|
 |countrycodes|      lọc kết quả    | giới hạn kết quả trong một số quốc gia | Cột country code trong bảng [Country codes](https://wiki.openstreetmap.org/wiki/Nominatim/Country_Codes) | countrycodes=vn,de|
